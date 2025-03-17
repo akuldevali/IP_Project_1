@@ -7,13 +7,12 @@ This framework provides tools for testing and comparing the performance of diffe
 1. [Requirements](#requirements)
 2. [Installation](#installation)
 3. [Directory Structure](#directory-structure)
-4. [Creating Test Files](#creating-test-files)
-5. [HTTP/1.1 Implementation](#http11-implementation)
-6. [HTTP/2 Implementation](#http2-implementation)
-7. [BitTorrent Implementation](#bittorrent-implementation)
-8. [Running Comprehensive Tests](#running-comprehensive-tests)
-9. [Understanding Results](#understanding-results)
-10. [Troubleshooting](#troubleshooting)
+4. [HTTP/1.1 Implementation](#http11-implementation)
+5. [HTTP/2 Implementation](#http2-implementation)
+6. [BitTorrent Implementation](#bittorrent-implementation)
+7. [Running Comprehensive Tests](#running-comprehensive-tests)
+8. [Understanding Results](#understanding-results)
+9. [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
@@ -70,7 +69,7 @@ conda install -c conda-forge libtorrent
 
 ## Directory Structure
 
-Create the following directory structure:
+The repository has the following directory structure:
 
 ```
 network-testing/
@@ -89,63 +88,6 @@ network-testing/
 │   ├── leecher.py
 │   └── torrents/       # Directory for .torrent files
 └── README.md
-```
-
-## Creating Test Files
-
-### For HTTP/1.1 and HTTP/2
-
-Create test files of specific sizes in both the `http1/Data files/` and `http2/Data files/` directories:
-
-```bash
-# For Linux/macOS:
-mkdir -p "http1/Data files" "http2/Data files"
-cd "http1/Data files"
-dd if=/dev/zero of=A_10kB bs=1024 count=10
-dd if=/dev/zero of=A_100kB bs=1024 count=100
-dd if=/dev/zero of=A_1MB bs=1MB count=1
-dd if=/dev/zero of=A_10MB bs=1MB count=10
-
-# Copy to HTTP/2 directory
-cp A_* "../../http2/Data files/"
-
-# For Windows PowerShell:
-New-Item -ItemType Directory -Force -Path "http1\Data files"
-New-Item -ItemType Directory -Force -Path "http2\Data files"
-cd "http1\Data files"
-fsutil file createnew A_10kB 10240
-fsutil file createnew A_100kB 102400
-fsutil file createnew A_1MB 1048576
-fsutil file createnew A_10MB 10485760
-
-# Copy to HTTP/2 directory
-copy A_* "..\..\http2\Data files\"
-```
-
-### For BitTorrent
-
-1. Create test files for BitTorrent:
-
-```bash
-# Create directory for BitTorrent test files
-mkdir -p bitTorrent/test_files
-cd bitTorrent/test_files
-
-# Create test files
-dd if=/dev/zero of=file_1MB bs=1MB count=1
-dd if=/dev/zero of=file_10MB bs=1MB count=10
-dd if=/dev/zero of=file_100MB bs=1MB count=100
-```
-
-2. Create torrent files (requires a torrent creation tool):
-
-```bash
-# Using transmission-create (Linux/macOS):
-transmission-create -o ../torrents/file_1MB.torrent -c "Test file 1MB" file_1MB
-transmission-create -o ../torrents/file_10MB.torrent -c "Test file 10MB" file_10MB
-transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_100MB
-
-# Alternatively, use any BitTorrent client with torrent creation capabilities
 ```
 
 ## HTTP/1.1 Implementation
@@ -169,10 +111,10 @@ transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_
 
 ### HTTP/1.1 Client Setup
 
-1. Edit the `http1_client.py` file to update the server IP address:
+1. **IMPORTANT**: You must manually edit the `http1_client.py` file to set the correct server IP address:
    ```python
    # Define server URLs - update with your actual server IPs
-   computer1_url = 'http://YOUR_SERVER_IP:8080'  # Replace with your server's IP
+   computer1_url = 'http://YOUR_SERVER_IP:8080'  # Replace with Computer A's IP
    ```
 
 2. Run the client:
@@ -197,11 +139,6 @@ transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_
 
 2. Start the server:
    ```bash
-   python server.py
-   ```
-
-   To use specific host/port:
-   ```bash
    python server.py --host 192.168.1.100 --port 8443
    ```
 
@@ -212,7 +149,7 @@ transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_
 
 ### HTTP/2 Client Setup
 
-1. Run the client with your server's IP and port:
+1. **IMPORTANT**: Run the client specifying the server's IP address and port:
    ```bash
    python client.py --server YOUR_SERVER_IP --port 8080
    ```
@@ -222,21 +159,9 @@ transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_
    python client.py --server YOUR_SERVER_IP --port 8080 --file A_1MB --repeats 5
    ```
 
-3. For testing with two servers:
-   ```bash
-   python client.py --server SERVER1_IP --port 8080 --server2 SERVER2_IP --port2 8080
-   ```
-
 ## BitTorrent Implementation
 
 BitTorrent testing requires two components: a seeder (server) and a leecher (client).
-
-### Creating Torrent Files
-
-If you haven't already created torrent files, you'll need to do so:
-1. Use a BitTorrent client to create a .torrent file for each test file
-2. Place the .torrent files in the bitTorrent/torrents directory
-3. Make sure the original files are accessible to the seeder
 
 ### BitTorrent Seeder Setup
 
@@ -282,7 +207,7 @@ If you haven't already created torrent files, you'll need to do so:
 
 For a complete comparison of all three protocols:
 
-1. Set up test files for all protocols
+1. Set up the required environments for all protocols
 2. Run tests for each protocol separately
 3. Compare results across protocols
 
@@ -316,7 +241,6 @@ Both HTTP implementations generate JSON result files that include:
 - **Average Throughput**: Data transfer rate in kilobits per second (kbps)
 - **Standard Deviation**: Variation in throughput across multiple transfers
 - **Overhead Ratio**: The ratio of total transferred data to file size (headers and protocol overhead)
-- **Transfer Count**: Number of transfers performed
 
 ### BitTorrent Results
 BitTorrent generates two files per test:
@@ -353,7 +277,6 @@ When comparing protocols, look for:
 ### HTTP-Specific Issues
 
 1. **File Not Found Errors**:
-   - Ensure test files are created in the correct directories
    - Check file permissions
    - Verify filenames match exactly what the client is requesting
 
