@@ -134,7 +134,7 @@ def run_experiments():
     print("-----------------------------------------------------------------")
     for size, data in results_summary.items():
         if data["throughputs_kbps"]:
-            print(f"{size:8} | {data['avg_kbps']:18.2f} | {data['std_dev_kbps']:18.2f} | {data['avg_overhead']:14.4f}")
+            print(f"{size:8} | {data['avg_kbps']:18.2f} | {data['std_dev_kbps']:18.2f} | {data['avg_overhead']:14.8f}")
     print("-----------------------------------------------------------------")
 
 if __name__ == "__main__":
