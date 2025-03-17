@@ -318,8 +318,8 @@ def run_experiments(computer1_ip, computer1_port, computer2_ip=None, computer2_p
     print("----------------------------------------------------------------------------")
     for filename, data in results.items():
         if isinstance(data, dict) and "avg_throughput_kbps" in data:
-            print(f"{filename:8} | {data['avg_throughput_kbps']:20.2f} | {data['std_dev_kbps']:13.2f} | " +
-                  f"{data['avg_overhead_ratio']:14.4f} | {data['transfer_count']:5d}")
+            print(f"{filename:8} | {data['avg_throughput_kbps']:20.4f} | {data['std_dev_kbps']:13.4f} | " +
+                  f"{data['avg_overhead_ratio']:14.8} | {data['transfer_count']:5d}")
     print("----------------------------------------------------------------------------")
 
 if __name__ == "__main__":
@@ -343,8 +343,8 @@ if __name__ == "__main__":
             result = client.download_file(args.file, args.repeats)
             print("\nDownload Results:")
             print(f"File: {args.file}")
-            print(f"Average throughput: {result['avg_throughput_kbps']:.2f} kbps")
-            print(f"Standard deviation: {result['std_dev_kbps']:.2f} kbps")
+            print(f"Average throughput: {result['avg_throughput_kbps']:.6f} kbps")
+            print(f"Standard deviation: {result['std_dev_kbps']:.6f} kbps")
             print(f"Average overhead ratio: {result['avg_overhead_ratio']:.8f}")
             print(f"Transfer count: {result['transfer_count']}")
         finally:
