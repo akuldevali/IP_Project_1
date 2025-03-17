@@ -62,10 +62,14 @@ sudo apt-get install python3-libtorrent
 brew install libtorrent-rasterbar
 pip install python-libtorrent
 
+# On Windows:
+# Download appropriate binaries or use Anaconda:
+conda install -c conda-forge libtorrent
+```
 
 ## Directory Structure
 
-The repository has the following directory structure:
+Create the following directory structure:
 
 ```
 network-testing/
@@ -84,6 +88,7 @@ network-testing/
 │   ├── leecher.py
 └── README.md
 ```
+
 
 ## HTTP/1.1 Implementation
 
@@ -106,10 +111,10 @@ network-testing/
 
 ### HTTP/1.1 Client Setup
 
-1. **IMPORTANT**: You must manually edit the `http1_client.py` file to set the correct server IP address:
+1. Edit the `http1_client.py` file to update the server IP address:
    ```python
    # Define server URLs - update with your actual server IPs
-   computer1_url = 'http://YOUR_SERVER_IP:8080' 
+   computer1_url = 'http://YOUR_SERVER_IP:8080'  # Replace with your server's IP
    ```
 
 2. Run the client:
@@ -134,6 +139,11 @@ network-testing/
 
 2. Start the server:
    ```bash
+   python server.py
+   ```
+
+   To use specific host/port:
+   ```bash
    python server.py --host 192.168.1.100 --port 8443
    ```
 
@@ -144,26 +154,56 @@ network-testing/
 
 ### HTTP/2 Client Setup
 
-1. **IMPORTANT**: Run the client specifying the server's IP address and port:
+1. Run the client with your server's IP and port:
    ```bash
    python client.py --server YOUR_SERVER_IP --port 8080
    ```
 
+2. For testing a single file:
+   ```bash
+   python client.py --server YOUR_SERVER_IP --port 8080 --file A_1MB --repeats 5
+   ```
+
+3. For testing with two servers:
+   ```bash
+   python client.py --server SERVER1_IP --port 8080 --server2 SERVER2_IP --port2 8080
+   ```
+
 ## BitTorrent Implementation
 
-BitTorrent testing requires two components: a seeder (server) and a leecher (client).
+The BitTorrent implementation requires both a seeder and a leecher component to measure file transfer performance. This implementation uses existing torrent files rather than creating test files from scratch.
+
+
+
+### Installing libtorrent
+
+Before running the BitTorrent tests, you need to install the libtorrent library:
+   ```bash
+   sudo apt-get install python3-libtorrent
+   ```
+
+Install a library to create a .torrent file which is shared to all the peers.
+   ```bash
+   pip3 install py3createtorrent
+   ```
+
+### Creating Torrent Files
+
+   ```bash
+   The sender needs to  creates the .torrent file which will be used to send files to the peers.
+
+   - CMD: py3createtorrent -t udp://tracker.opentrackr.org:1337/announce <path-to-file>
+
+   Example:
+   - py3createtorrent -t udp://tracker.opentrackr.org:1337/announce A_1MB
+   ```
 
 ### BitTorrent Seeder Setup
 
-1. Navigate to the BitTorrent directory:
-   ```bash
-   cd bitTorrent
-   ```
-
-2. Start the seeder with the path to the torrent file, save directory, and port:
    ```bash
    python seeder.py --torrent myfile.torrent --dir . --port 7001
    ```
+
 
    Parameters:
    - `--torrent`: Path to the .torrent file
@@ -177,10 +217,11 @@ BitTorrent testing requires two components: a seeder (server) and a leecher (cli
 
 ### BitTorrent Leecher Setup
 
-1. Run the leecher with the path to the torrent file and test parameters:
+2. Run the leecher with the path to the torrent file and test parameters:
    ```bash
    python leecher.py --torrent myfile.torrent --trials 5 --filesize 1048576
    ```
+   Before running these that leecher also has the torrent file mentioned in the command if you don't have create torrent file as told from above
 
    Parameters:
    - `--torrent`: Path to the .torrent file
@@ -197,7 +238,7 @@ BitTorrent testing requires two components: a seeder (server) and a leecher (cli
 
 For a complete comparison of all three protocols:
 
-1. Set up the required environments for all protocols
+1. Set up test files for all protocols
 2. Run tests for each protocol separately
 3. Compare results across protocols
 
@@ -219,9 +260,9 @@ python client.py --server SERVER_IP  # Run on client machine
 
 Finally, test BitTorrent:
 ```bash
-cd bitTorrent
-python seeder.py --torrent file_1MB.torrent --dir test_files  # Run on server machine
-python leecher.py --torrent file_1MB.torrent --trials 5 --filesize 1048576  # Run on client machine
+py3createtorrent -t udp://tracker.opentrackr.org:1337/announce A_1MB
+python seeder.py --torrent A_1MB.torrent --dir test_files  # Run on server machine
+python leecher.py --torrent A_1MB.torrent --trials 3 --filesize 1048576  # Run on client machine
 ```
 
 ## Understanding Results
@@ -231,6 +272,7 @@ Both HTTP implementations generate JSON result files that include:
 - **Average Throughput**: Data transfer rate in kilobits per second (kbps)
 - **Standard Deviation**: Variation in throughput across multiple transfers
 - **Overhead Ratio**: The ratio of total transferred data to file size (headers and protocol overhead)
+- **Transfer Count**: Number of transfers performed
 
 ### BitTorrent Results
 BitTorrent generates two files per test:
@@ -267,6 +309,7 @@ When comparing protocols, look for:
 ### HTTP-Specific Issues
 
 1. **File Not Found Errors**:
+   - Ensure test files are created in the correct directories
    - Check file permissions
    - Verify filenames match exactly what the client is requesting
 
