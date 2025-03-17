@@ -62,10 +62,6 @@ sudo apt-get install python3-libtorrent
 brew install libtorrent-rasterbar
 pip install python-libtorrent
 
-# On Windows:
-# Download appropriate binaries or use Anaconda:
-conda install -c conda-forge libtorrent
-```
 
 ## Directory Structure
 
@@ -113,7 +109,7 @@ network-testing/
 1. **IMPORTANT**: You must manually edit the `http1_client.py` file to set the correct server IP address:
    ```python
    # Define server URLs - update with your actual server IPs
-   computer1_url = 'http://YOUR_SERVER_IP:8080'  # Replace with Computer A's IP
+   computer1_url = 'http://YOUR_SERVER_IP:8080' 
    ```
 
 2. Run the client:
@@ -151,11 +147,6 @@ network-testing/
 1. **IMPORTANT**: Run the client specifying the server's IP address and port:
    ```bash
    python client.py --server YOUR_SERVER_IP --port 8080
-   ```
-
-2. For testing a single file:
-   ```bash
-   python client.py --server YOUR_SERVER_IP --port 8080 --file A_1MB --repeats 5
    ```
 
 ## BitTorrent Implementation
