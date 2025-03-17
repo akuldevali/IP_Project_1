@@ -87,55 +87,9 @@ network-testing/
 ├── bitTorrent/
 │   ├── seeder.py
 │   ├── leecher.py
-│   └── torrents/       # Directory for .torrent files
 └── README.md
 ```
 
-## Creating Test Files
-
-### For HTTP/1.1 and HTTP/2
-
-Create test files of specific sizes in both the `http1/Data files/` and `http2/Data files/` directories:
-
-```bash
-# For Linux/macOS:
-mkdir -p "http1/Data files" "http2/Data files"
-cd "http1/Data files"
-dd if=/dev/zero of=A_10kB bs=1024 count=10
-dd if=/dev/zero of=A_100kB bs=1024 count=100
-dd if=/dev/zero of=A_1MB bs=1MB count=1
-dd if=/dev/zero of=A_10MB bs=1MB count=10
-
-# Copy to HTTP/2 directory
-cp A_* "../../http2/Data files/"
-
-# For Windows PowerShell:
-New-Item -ItemType Directory -Force -Path "http1\Data files"
-New-Item -ItemType Directory -Force -Path "http2\Data files"
-cd "http1\Data files"
-fsutil file createnew A_10kB 10240
-fsutil file createnew A_100kB 102400
-fsutil file createnew A_1MB 1048576
-fsutil file createnew A_10MB 10485760
-
-# Copy to HTTP/2 directory
-copy A_* "..\..\http2\Data files\"
-```
-
-### For BitTorrent
-
-1. Create test files for BitTorrent:
-
-```bash
-# Create directory for BitTorrent test files
-mkdir -p bitTorrent/test_files
-cd bitTorrent/test_files
-
-# Create test files
-dd if=/dev/zero of=file_1MB bs=1MB count=1
-dd if=/dev/zero of=file_10MB bs=1MB count=10
-dd if=/dev/zero of=file_100MB bs=1MB count=100
-```
 
 2. Create torrent files (requires a torrent creation tool):
 
