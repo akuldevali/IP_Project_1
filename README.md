@@ -7,13 +7,12 @@ This framework provides tools for testing and comparing the performance of diffe
 1. [Requirements](#requirements)
 2. [Installation](#installation)
 3. [Directory Structure](#directory-structure)
-4. [Creating Test Files](#creating-test-files)
-5. [HTTP/1.1 Implementation](#http11-implementation)
-6. [HTTP/2 Implementation](#http2-implementation)
-7. [BitTorrent Implementation](#bittorrent-implementation)
-8. [Running Comprehensive Tests](#running-comprehensive-tests)
-9. [Understanding Results](#understanding-results)
-10. [Troubleshooting](#troubleshooting)
+4. [HTTP/1.1 Implementation](#http11-implementation)
+5. [HTTP/2 Implementation](#http2-implementation)
+6. [BitTorrent Implementation](#bittorrent-implementation)
+7. [Running Comprehensive Tests](#running-comprehensive-tests)
+8. [Understanding Results](#understanding-results)
+9. [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
@@ -90,17 +89,6 @@ network-testing/
 └── README.md
 ```
 
-
-2. Create torrent files (requires a torrent creation tool):
-
-```bash
-# Using transmission-create (Linux/macOS):
-transmission-create -o ../torrents/file_1MB.torrent -c "Test file 1MB" file_1MB
-transmission-create -o ../torrents/file_10MB.torrent -c "Test file 10MB" file_10MB
-transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_100MB
-
-# Alternatively, use any BitTorrent client with torrent creation capabilities
-```
 
 ## HTTP/1.1 Implementation
 
@@ -183,26 +171,39 @@ transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_
 
 ## BitTorrent Implementation
 
-BitTorrent testing requires two components: a seeder (server) and a leecher (client).
+The BitTorrent implementation requires both a seeder and a leecher component to measure file transfer performance. This implementation uses existing torrent files rather than creating test files from scratch.
+
+
+
+### Installing libtorrent
+
+Before running the BitTorrent tests, you need to install the libtorrent library:
+   ```bash
+   sudo apt-get install python3-libtorrent
+   ```
+
+Install a library to create a .torrent file which is shared to all the peers.
+   ```bash
+   pip3 install py3createtorrent
+   ```
 
 ### Creating Torrent Files
 
-If you haven't already created torrent files, you'll need to do so:
-1. Use a BitTorrent client to create a .torrent file for each test file
-2. Place the .torrent files in the bitTorrent/torrents directory
-3. Make sure the original files are accessible to the seeder
+   ```bash
+   The sender needs to  creates the .torrent file which will be used to send files to the peers.
+
+   - CMD: py3createtorrent -t udp://tracker.opentrackr.org:1337/announce <path-to-file>
+
+   Example:
+   - py3createtorrent -t udp://tracker.opentrackr.org:1337/announce A_1MB
+   ```
 
 ### BitTorrent Seeder Setup
 
-1. Navigate to the BitTorrent directory:
-   ```bash
-   cd bitTorrent
-   ```
-
-2. Start the seeder with the path to the torrent file, save directory, and port:
    ```bash
    python seeder.py --torrent myfile.torrent --dir . --port 7001
    ```
+
 
    Parameters:
    - `--torrent`: Path to the .torrent file
@@ -216,10 +217,11 @@ If you haven't already created torrent files, you'll need to do so:
 
 ### BitTorrent Leecher Setup
 
-1. Run the leecher with the path to the torrent file and test parameters:
+2. Run the leecher with the path to the torrent file and test parameters:
    ```bash
    python leecher.py --torrent myfile.torrent --trials 5 --filesize 1048576
    ```
+   Before running these that leecher also has the torrent file mentioned in the command if you don't have create torrent file as told from above
 
    Parameters:
    - `--torrent`: Path to the .torrent file
@@ -258,9 +260,9 @@ python client.py --server SERVER_IP  # Run on client machine
 
 Finally, test BitTorrent:
 ```bash
-cd bitTorrent
-python seeder.py --torrent file_1MB.torrent --dir test_files  # Run on server machine
-python leecher.py --torrent file_1MB.torrent --trials 5 --filesize 1048576  # Run on client machine
+py3createtorrent -t udp://tracker.opentrackr.org:1337/announce A_1MB
+python seeder.py --torrent A_1MB.torrent --dir test_files  # Run on server machine
+python leecher.py --torrent A_1MB.torrent --trials 3 --filesize 1048576  # Run on client machine
 ```
 
 ## Understanding Results
