@@ -1,6 +1,6 @@
-# HTTP Protocol Performance Testing Framework
+# Network Protocols Performance Testing Framework
 
-This framework provides tools for testing and comparing the performance of HTTP/1.1 and HTTP/2 protocols. It includes client and server implementations for both protocols, designed to measure throughput, latency, and protocol overhead across different file sizes.
+This framework provides tools for testing and comparing the performance of different network protocols: HTTP/1.1, HTTP/2, and BitTorrent. It includes client and server implementations for all three protocols, designed to measure throughput, latency, and protocol overhead across different file sizes.
 
 ## Table of Contents
 
@@ -9,14 +9,11 @@ This framework provides tools for testing and comparing the performance of HTTP/
 3. [Directory Structure](#directory-structure)
 4. [Creating Test Files](#creating-test-files)
 5. [HTTP/1.1 Implementation](#http11-implementation)
-   - [Server Setup](#http11-server-setup)
-   - [Client Setup](#http11-client-setup)
 6. [HTTP/2 Implementation](#http2-implementation)
-   - [Server Setup](#http2-server-setup)
-   - [Client Setup](#http2-client-setup)
-7. [Running Tests](#running-tests)
-8. [Understanding Results](#understanding-results)
-9. [Troubleshooting](#troubleshooting)
+7. [BitTorrent Implementation](#bittorrent-implementation)
+8. [Running Comprehensive Tests](#running-comprehensive-tests)
+9. [Understanding Results](#understanding-results)
+10. [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
@@ -34,17 +31,41 @@ This framework provides tools for testing and comparing the performance of HTTP/
 - Statistics module (part of Python standard library)
 - psutil (`pip install psutil`)
 
+### For BitTorrent:
+- Python 3.6+
+- libtorrent (`pip install python-libtorrent` or platform-specific installation)
+- Statistics module (part of Python standard library)
+- argparse (part of Python standard library)
+
 ## Installation
+
+### Basic Setup
 
 1. Clone or download this repository
 2. Install the required dependencies:
 
 ```bash
+# Common requirements
+pip install statistics
+
 # For HTTP/1.1 implementation
 pip install flask requests werkzeug
 
 # For HTTP/2 implementation
 pip install h2 psutil
+
+# For BitTorrent implementation
+# Note: libtorrent installation can be platform-specific
+# On Ubuntu/Debian:
+sudo apt-get install python3-libtorrent
+
+# On macOS (with Homebrew):
+brew install libtorrent-rasterbar
+pip install python-libtorrent
+
+# On Windows:
+# Download appropriate binaries or use Anaconda:
+conda install -c conda-forge libtorrent
 ```
 
 ## Directory Structure
@@ -52,7 +73,7 @@ pip install h2 psutil
 Create the following directory structure:
 
 ```
-http-testing/
+network-testing/
 ├── http1/
 │   ├── http1_server.py
 │   ├── http1_client.py
@@ -63,10 +84,16 @@ http-testing/
 │   ├── client.py
 │   ├── Data files/     # Test files for HTTP/2
 │   └── http2_server.log # Generated when running
+├── bitTorrent/
+│   ├── seeder.py
+│   ├── leecher.py
+│   └── torrents/       # Directory for .torrent files
 └── README.md
 ```
 
 ## Creating Test Files
+
+### For HTTP/1.1 and HTTP/2
 
 Create test files of specific sizes in both the `http1/Data files/` and `http2/Data files/` directories:
 
@@ -95,7 +122,31 @@ fsutil file createnew A_10MB 10485760
 copy A_* "..\..\http2\Data files\"
 ```
 
-Optional: Create additional B_* test files following the same pattern if you want to test transfers from a second server.
+### For BitTorrent
+
+1. Create test files for BitTorrent:
+
+```bash
+# Create directory for BitTorrent test files
+mkdir -p bitTorrent/test_files
+cd bitTorrent/test_files
+
+# Create test files
+dd if=/dev/zero of=file_1MB bs=1MB count=1
+dd if=/dev/zero of=file_10MB bs=1MB count=10
+dd if=/dev/zero of=file_100MB bs=1MB count=100
+```
+
+2. Create torrent files (requires a torrent creation tool):
+
+```bash
+# Using transmission-create (Linux/macOS):
+transmission-create -o ../torrents/file_1MB.torrent -c "Test file 1MB" file_1MB
+transmission-create -o ../torrents/file_10MB.torrent -c "Test file 10MB" file_10MB
+transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_100MB
+
+# Alternatively, use any BitTorrent client with torrent creation capabilities
+```
 
 ## HTTP/1.1 Implementation
 
@@ -106,16 +157,15 @@ Optional: Create additional B_* test files following the same pattern if you wan
    cd http1
    ```
 
-2. Configure the server:
-   - The server is configured to listen on 0.0.0.0:8080 (all interfaces)
-   - Files are served from the "Data files" directory
-
-3. Start the server:
+2. Start the server:
    ```bash
    python http1_server.py
    ```
 
-   You should see output confirming the server is running and listing available files.
+   The server will:
+   - Listen on 0.0.0.0:8080 (all interfaces)
+   - Serve files from the "Data files" directory
+   - Log activity to http1_server.log
 
 ### HTTP/1.1 Client Setup
 
@@ -130,11 +180,11 @@ Optional: Create additional B_* test files following the same pattern if you wan
    python http1_client.py
    ```
 
-The client will:
-- Download files of different sizes (10kB, 100kB, 1MB, 10MB)
-- Perform multiple transfer repetitions (1000, 100, 10, 1 respectively)
-- Calculate throughput, latency, and overhead metrics
-- Save results to `http1_1_throughput_results.json`
+   The client will:
+   - Download files of different sizes (10kB, 100kB, 1MB, 10MB)
+   - Perform multiple transfer repetitions (1000, 100, 10, 1 respectively)
+   - Calculate throughput, latency, and overhead metrics
+   - Save results to `http1_1_throughput_results.json`
 
 ## HTTP/2 Implementation
 
@@ -145,11 +195,7 @@ The client will:
    cd http2
    ```
 
-2. Configure the server (optional):
-   - The server is configured to listen on 0.0.0.0:8080 by default
-   - You can specify a different host or port using command-line arguments
-
-3. Start the server:
+2. Start the server:
    ```bash
    python server.py
    ```
@@ -158,6 +204,11 @@ The client will:
    ```bash
    python server.py --host 192.168.1.100 --port 8443
    ```
+
+   The server will:
+   - Listen on the specified interface (default: 0.0.0.0:8080)
+   - Serve files from the "Data files" directory
+   - Log activity to http2_server.log
 
 ### HTTP/2 Client Setup
 
@@ -176,52 +227,121 @@ The client will:
    python client.py --server SERVER1_IP --port 8080 --server2 SERVER2_IP --port2 8080
    ```
 
-The client will run similar experiments to HTTP/1.1, saving results to `http2_results.json`.
+## BitTorrent Implementation
 
-## Running Tests
+BitTorrent testing requires two components: a seeder (server) and a leecher (client).
 
-For a fair comparison between HTTP/1.1 and HTTP/2:
+### Creating Torrent Files
 
-1. Run the tests on the same network setup
-2. Test both protocols with the same file sizes
-3. Run the tests at similar times to ensure network conditions are comparable
-4. Use multiple test runs to reduce the effect of random network fluctuations
+If you haven't already created torrent files, you'll need to do so:
+1. Use a BitTorrent client to create a .torrent file for each test file
+2. Place the .torrent files in the bitTorrent/torrents directory
+3. Make sure the original files are accessible to the seeder
 
-### Complete Test Sequence
+### BitTorrent Seeder Setup
 
-1. Start the HTTP/1.1 server on one computer
-2. Run the HTTP/1.1 client from another computer
-3. Shut down the HTTP/1.1 server
-4. Start the HTTP/2 server
-5. Run the HTTP/2 client
-6. Compare the results from both tests
+1. Navigate to the BitTorrent directory:
+   ```bash
+   cd bitTorrent
+   ```
+
+2. Start the seeder with the path to the torrent file, save directory, and port:
+   ```bash
+   python seeder.py --torrent myfile.torrent --dir . --port 7001
+   ```
+
+   Parameters:
+   - `--torrent`: Path to the .torrent file
+   - `--dir`: Directory where the original file is located
+   - `--port`: Base port for BitTorrent communication (default: 7001)
+
+   The seeder will:
+   - Load the torrent file
+   - Start serving the file to peers
+   - Continue running until manually terminated (Ctrl+C)
+
+### BitTorrent Leecher Setup
+
+1. Run the leecher with the path to the torrent file and test parameters:
+   ```bash
+   python leecher.py --torrent myfile.torrent --trials 5 --filesize 1048576
+   ```
+
+   Parameters:
+   - `--torrent`: Path to the .torrent file
+   - `--trials`: Number of download trials to run
+   - `--filesize`: Expected file size in bytes (required for accurate metrics)
+
+   The leecher will:
+   - Download the file multiple times (based on trials)
+   - Measure download time, throughput, and overhead
+   - Save detailed metrics to a timestamped CSV file
+   - Generate a summary file with average metrics
+
+## Running Comprehensive Tests
+
+For a complete comparison of all three protocols:
+
+1. Set up test files for all protocols
+2. Run tests for each protocol separately
+3. Compare results across protocols
+
+### Example Test Sequence
+
+First, test HTTP/1.1:
+```bash
+cd http1
+python http1_server.py  # Run on server machine
+python http1_client.py  # Run on client machine
+```
+
+Next, test HTTP/2:
+```bash
+cd http2
+python server.py  # Run on server machine
+python client.py --server SERVER_IP  # Run on client machine
+```
+
+Finally, test BitTorrent:
+```bash
+cd bitTorrent
+python seeder.py --torrent file_1MB.torrent --dir test_files  # Run on server machine
+python leecher.py --torrent file_1MB.torrent --trials 5 --filesize 1048576  # Run on client machine
+```
 
 ## Understanding Results
 
-Both implementations generate JSON result files that include:
-
+### HTTP/1.1 and HTTP/2 Results
+Both HTTP implementations generate JSON result files that include:
 - **Average Throughput**: Data transfer rate in kilobits per second (kbps)
 - **Standard Deviation**: Variation in throughput across multiple transfers
 - **Overhead Ratio**: The ratio of total transferred data to file size (headers and protocol overhead)
 - **Transfer Count**: Number of transfers performed
 
-Compare the results to see the performance differences between HTTP/1.1 and HTTP/2 across different file sizes.
+### BitTorrent Results
+BitTorrent generates two files per test:
+- **Detailed CSV file**: Contains metrics for each trial
+- **Summary file**: Contains average metrics across all trials
 
-### Expected Performance Differences
+Metrics include:
+- **Round-Trip Time (RTT)**: Total download time
+- **Throughput**: Data transfer rate in kilobits per second
+- **Total Data Transferred**: Ratio of total data to file size
+- **Total Payload Transferred**: Actual file data received
 
-- HTTP/2 typically shows better performance for small files due to:
-  - Multiplexing capabilities
-  - Header compression
-  - Binary protocol format instead of text-based
-- HTTP/1.1 may perform similarly for large files where protocol overhead is less significant
-- HTTP/2 should show better performance when downloading multiple files simultaneously
+### Protocol Comparison
+When comparing protocols, look for:
+1. **Throughput differences** across file sizes
+2. **Overhead ratios** - typically BitTorrent has higher overhead for small files
+3. **Consistency** (standard deviation) - lower variation means more predictable performance
+4. **Scaling efficiency** - how performance changes as file size increases
 
 ## Troubleshooting
 
-### Common Issues:
+### Common Issues for All Protocols
 
 1. **Connection Refused**:
-   - Ensure the server is running
+   - Ensure the server/seeder is running
    - Check if the IP address and port are correctly configured
    - Verify firewall settings allow traffic on the specified port
 
@@ -230,18 +350,25 @@ Compare the results to see the performance differences between HTTP/1.1 and HTTP
    - Verify no other bandwidth-intensive applications are running
    - Try running tests during periods of low network usage
 
-3. **Server Crashes**:
-   - Check log files for error messages
-   - Ensure all dependencies are installed
-   - Verify sufficient system resources (memory, CPU)
+### HTTP-Specific Issues
 
-4. **File Not Found Errors**:
+1. **File Not Found Errors**:
    - Ensure test files are created in the correct directories
    - Check file permissions
    - Verify filenames match exactly what the client is requesting
 
-### Logging
+### BitTorrent-Specific Issues
 
-- Both servers generate log files (`http1_server.log` and `http2_server.log`)
-- Examine these logs for detailed information about transfers and errors
-- The HTTP/2 implementation provides more detailed metrics in its logs
+1. **Tracker Connection Issues**:
+   - If using an external tracker, ensure it's accessible
+   - Consider using DHT or local trackers for testing
+
+2. **Seeding Issues**:
+   - Ensure the seeder has the complete file
+   - Verify the seeder is properly configured for incoming connections
+   - Check that both seeder and leecher are using the same .torrent file
+
+3. **libtorrent Installation Problems**:
+   - libtorrent can be difficult to install on some platforms
+   - Consider using Docker for a consistent environment
+   - For Windows, the Anaconda distribution often simplifies installation
