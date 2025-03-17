@@ -89,18 +89,6 @@ network-testing/
 └── README.md
 ```
 
-
-2. Create torrent files (requires a torrent creation tool):
-
-```bash
-# Using transmission-create (Linux/macOS):
-transmission-create -o ../torrents/file_1MB.torrent -c "Test file 1MB" file_1MB
-transmission-create -o ../torrents/file_10MB.torrent -c "Test file 10MB" file_10MB
-transmission-create -o ../torrents/file_100MB.torrent -c "Test file 100MB" file_100MB
-
-# Alternatively, use any BitTorrent client with torrent creation capabilities
-```
-
 ## HTTP/1.1 Implementation
 
 ### HTTP/1.1 Server Setup
