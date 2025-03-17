@@ -1,0 +1,50 @@
+{
+  "A_10kB": {
+    "avg_throughput_kbps": 101885639.75392005,
+    "std_dev_kbps": 37737031.14308265,
+    "avg_overhead_ratio": 1.00908203125,
+    "std_dev_overhead": 0.0,
+    "avg_setup_time_s": 0.00266431200399893,
+    "avg_transfer_time_s": 1.1379000861779786e-06,
+    "avg_total_time_s": 0.05134151832803036,
+    "std_dev_transfer_time_s": 2.36898412298579e-06,
+    "transfer_count": 1000,
+    "file_size_bytes": 10240
+  },
+  "A_100kB": {
+    "avg_throughput_kbps": 801450.2365924588,
+    "std_dev_kbps": 229529.7777119768,
+    "avg_overhead_ratio": 1.0014453125,
+    "std_dev_overhead": 0.0,
+    "avg_setup_time_s": 0.0028992870002548443,
+    "avg_transfer_time_s": 0.00109856501014292,
+    "avg_total_time_s": 0.004208036010313662,
+    "std_dev_transfer_time_s": 0.0002898801090156133,
+    "transfer_count": 100,
+    "file_size_bytes": 102400
+  },
+  "A_1MB": {
+    "avg_throughput_kbps": 120302.16780869335,
+    "std_dev_kbps": 10527.998892134114,
+    "avg_overhead_ratio": 1.0006399154663086,
+    "std_dev_overhead": 0.0,
+    "avg_setup_time_s": 0.002884439999979804,
+    "avg_transfer_time_s": 0.07028150010009995,
+    "avg_total_time_s": 0.07345051009979216,
+    "std_dev_transfer_time_s": 0.007014704538053425,
+    "transfer_count": 10,
+    "file_size_bytes": 1048576
+  },
+  "A_10MB": {
+    "avg_throughput_kbps": 70239.92944292657,
+    "std_dev_kbps": 0,
+    "avg_overhead_ratio": 1.0005584716796876,
+    "std_dev_overhead": 0,
+    "avg_setup_time_s": 0.0026695999986259267,
+    "avg_transfer_time_s": 1.1942791039982694,
+    "avg_total_time_s": 1.248902603998431,
+    "std_dev_transfer_time_s": 0,
+    "transfer_count": 1,
+    "file_size_bytes": 10485760
+  }
+}

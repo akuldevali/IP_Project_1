@@ -1,0 +1,26 @@
+{
+  "10kB": {
+    "avg_throughput_kbps": 35049.96927081788,
+    "std_dev_kbps": 5145.94143179508,
+    "avg_overhead_ratio": 1.0345703125,
+    "transfer_count": 1000
+  },
+  "100kB": {
+    "avg_throughput_kbps": 333986.8762950729,
+    "std_dev_kbps": 44969.30274164542,
+    "avg_overhead_ratio": 1.003486328125,
+    "transfer_count": 100
+  },
+  "1MB": {
+    "avg_throughput_kbps": 2018463.0711815376,
+    "std_dev_kbps": 337894.6183795373,
+    "avg_overhead_ratio": 1.000340461730957,
+    "transfer_count": 10
+  },
+  "10MB": {
+    "avg_throughput_kbps": 3305372.8734599706,
+    "std_dev_kbps": 0,
+    "avg_overhead_ratio": 1.0000343322753906,
+    "transfer_count": 1
+  }
+}

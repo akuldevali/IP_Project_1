@@ -1,0 +1,9 @@
+# Core dependencies for both client and server
+hyper==0.7.0
+hyperframe==6.0.1
+h2==4.1.0
+hpack==4.0.0
+
+# Server dependencies
+flask==2.3.3
+hypercorn==0.15.0
